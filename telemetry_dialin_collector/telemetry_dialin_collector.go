@@ -1,6 +1,7 @@
 package main
 
 import (
+       "crypto/tls"
        "flag"
        "fmt"
        "io"
@@ -89,6 +90,11 @@ func main() {
          var tc credentials.TransportCredentials
          tc, _ = credentials.NewClientTLSFromFile(*certFile, *serverHostOverride)
          opts = append(opts, grpc.WithTransportCredentials(tc))
+     } else if *insecure {
+         tc := credentials.NewTLS(&tls.Config{
+            InsecureSkipVerify: true,
+         })
+         opts = append(opts, grpc.WithTransportCredentials(tc))     
      } else {
          opts = append(opts, grpc.WithInsecure())
      }
@@ -249,6 +255,21 @@ func mdtGetProto(client MdtDialin.GRPCConfigOperClient, args *MdtDialin.GetProto
 
 type passCredential int
 func (passCredential) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
+     if *username == "" {
+        fmt.Print("username: ")
+        _, err := fmt.Scan(username)
+        if err != nil {
+           return nil, err
+        }
+     }
+     if *password == "" {
+        fmt.Print("password: ")
+        p, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+        if err != nil {
+          return nil, err
+        }
+        *password = string(p)
+     }  
      return map[string]string{
                 "username": *username,
                 "password": *password,
