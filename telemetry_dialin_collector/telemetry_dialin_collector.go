@@ -11,6 +11,7 @@ import (
        "strings"
        "path/filepath"
 
+       "golang.org/x/crypto/ssh/terminal"
        "golang.org/x/net/context"
        "google.golang.org/grpc"
        "google.golang.org/grpc/credentials"
@@ -53,6 +54,7 @@ var (
                                    "Username for the client connection")
         password     = flag.String("password", "",
                                    "Password for the client connection")
+        insecure     = flag.Bool("insecure", false, "When set, the server certificate will not be verified during TLS handshake.")
         decode_raw   = flag.Bool("decode_raw", false, "Use protoc --decode_raw")
         protoFile    = flag.String("proto", "", "proto file to use for decode")
         pluginDir    = flag.String("plugin_dir", "", "absolute path to directory for proto plugins")
